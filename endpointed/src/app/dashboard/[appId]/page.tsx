@@ -1,9 +1,12 @@
-"use client";
-import React, { useState } from "react";
+import React from "react";
 import { FC } from "react";
 import { collection, query, getDocs, limit } from "firebase/firestore";
 import firebaseComp from "@/lib/firebase";
-import AppElement from "@/components/AppElement";
+interface AppProps {
+  params: {
+    appId: string;
+  };
+}
 
 async function fetchCollectionData() {
   const querySnapshot = await getDocs(collection(firebaseComp.db, "apps"));
@@ -16,11 +19,20 @@ async function fetchCollectionData() {
   return documents;
 }
 
-const Apps = ({ params }: any) => {
-  const [appsArray, setAppsArray] = useState([]);
+export async function generateStaticParams() {
+  const documents = await fetchCollectionData();
+  return documents.map((document) => {
+    return {
+      document,
+    };
+  });
+}
+
+const App: FC<AppProps> = ({ params }) => {
   fetchCollectionData().then((documents) => {
     console.log(documents);
   });
-  return <div>Dashboard(works only on terminal)</div>;
+
+  return <div>{params.appId}</div>;
 };
-export default Apps;
+export default App;
